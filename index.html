@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<title>Gaussian Wallpaper Generator</title>
+
+		<script>
+			function randomHex(){
+				return '#' + Math.random().toString(16).slice(2, 8).toUpperCase();
+			}
+
+			function brighterHex(color, percent) {
+			    var num = parseInt(color.slice(1),16), amt = Math.round(2.55 * percent), R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
+			    return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+			}
+
+			function rgbToHex(red, green, blue) {
+			    var rgb = blue | (green << 8) | (red << 16);
+			    return '#' + (0x1000000 + rgb).toString(16).slice(1)
+			}
+		</script>
+
+		<style>
+			body{
+				margin: 0;
+				overflow-x: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+			//Constants
+			var width = screen.width;
+			var height = screen.height;
+			var blurPx = 350;
+			var maxBlur = 25; //Anything higher than 50 results in strange rectangular errors ..
+			var blurDivs = Math.ceil(blurPx/maxBlur);
+
+			//Create all divs for the blur
+			var blurBase = document.createElement("div");
+			blurBase.id = "blurLayers";
+			document.body.appendChild(blurBase);
+
+			var lastDiv = blurBase;
+			for(var i = 0; i < blurDivs; i++){
+				var blur = document.createElement("div");
+				blur.id = "blur_" + i.toString();
+				blur.style.filter = "blur(50px)";
+				lastDiv.appendChild(blur);
+				lastDiv = blur;
+			}
+
+			//Create the canvas and blur it
+			var canvas = document.createElement("canvas");
+			document.getElementById("blur_" + (blurDivs-1).toString()).appendChild(canvas);
+
+			canvas.width = width;
+			canvas.height = height;
+			canvas.style.outline = "solid";
+
+			//Context
+			var ctx = canvas.getContext("2d");
+
+			//Calculate the base color from which all other colors are inherited
+			baseColorHex = rgbToHex(Math.random() * 128, Math.random() * 128, Math.random() * 128);
+			blurBase.style.backgroundColor = brighterHex(baseColorHex, 50); //Set background color
+
+
+			var n = 5 + Math.round(Math.random() * 10); //Number of circles to be generated. At least 5, max 15
+			for(var i = 0; i < n; i++){
+				var r = 50 + Math.round(Math.random() * 400); //Random radius
+				var x = Math.round(Math.random() * width); 	  //Random X Pos
+				var y = Math.round(Math.random() * height);   //Random Y Pos
+
+				//Draw circle
+				ctx.beginPath();
+				ctx.moveTo(0, 0);
+				ctx.arc(x, y, r, 0, 2*Math.PI);
+				ctx.fillStyle = brighterHex(baseColorHex, 5 + Math.round(Math.random() * 20)); //Circles are always brighter than the background
+				ctx.fill()
+			}
+
+		</script>
+	</body>
+</html>
